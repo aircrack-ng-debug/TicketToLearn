@@ -1,14 +1,14 @@
 import { disablePageScroll, enablePageScroll } from "scroll-lock";
-
 import { ticket2learn } from "../assets";
 import Button from "./Button";
 import MenuSvg from "../assets/svg/MenuSvg";
-
 import { useState } from "react";
-import {Link} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
     const [openNavigation, setOpenNavigation] = useState(false);
+    const navigate = useNavigate();
+    const isAuthenticated = !!localStorage.getItem('token');
 
     const toggleNavigation = () => {
         if (openNavigation) {
@@ -18,6 +18,11 @@ const Header = () => {
             setOpenNavigation(true);
             disablePageScroll();
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
     };
 
     return (
@@ -41,15 +46,31 @@ const Header = () => {
                     <h5>Projekt Members: Maurice, Marius, Alexander, Paul</h5>
                 </nav>
 
-                <Link
-                    to="/signup"
-                    className="button hidden mr-8 text-n-1/50 transition-colors hover:text-n-1 lg:block"
-                >
-                    New account
-                </Link>
-                <Button className="hidden lg:flex" href="/login">
-                    Sign in
-                </Button>
+                {isAuthenticated ? (
+                    <>
+                        <Link
+                            to="/my-page"
+                            className="button hidden mr-8 text-n-1/50 transition-colors hover:text-n-1 lg:block"
+                        >
+                            My Page
+                        </Link>
+                        <Button className="hidden lg:flex" onClick={handleLogout}>
+                            Logout
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Link
+                            to="/signup"
+                            className="button hidden mr-8 text-n-1/50 transition-colors hover:text-n-1 lg:block"
+                        >
+                            New account
+                        </Link>
+                        <Button className="hidden lg:flex" href="/login">
+                            Sign in
+                        </Button>
+                    </>
+                )}
 
                 <Button
                     className="ml-auto lg:hidden"
