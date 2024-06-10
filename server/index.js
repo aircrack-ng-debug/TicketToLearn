@@ -4,6 +4,13 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const StudentModel = require('./Models/Students.js');
 
+// Define jwt for my page
+// lade Umgebungsvariablen
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = process.env.SECRET_KEY;
+
+
 const app = express(); // Define app before using it
 app.use(express.json());
 app.use(cors());
@@ -50,10 +57,43 @@ app.post('/login', async (req, res) => {
             console.log('Password mismatch for user:', email);
             return res.status(401).json("The password is incorrect");
         }
-        res.status(200).json("Success");
+
+        const token = jwt.sign({ userId: user._id }, SECRET_KEY, { expiresIn: '1h' });
+        res.status(200).json({ token });  // Return the token here
+
     } catch (error) {
         console.error('Login error:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
+
+// Middleware to verify JWT
+const authenticateJWT = (req, res, next) => {
+    const token = req.headers.authorization;
+    if (token) {
+        jwt.verify(token, SECRET_KEY, (err, decoded) => {
+            if (err) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
+            req.user = decoded;
+            next();
+        });
+    } else {
+        res.status(401).json({ message: 'Unauthorized' });
+    }
+};
+
+// MyPage endpoint
+app.get('/my-page', authenticateJWT, async (req, res) => {
+    try {
+        const user = await StudentModel.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ name: user.name, email: user.email, course: user.course });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 

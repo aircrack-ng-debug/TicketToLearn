@@ -3,7 +3,6 @@ import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
-import Heading from "./components/Heading.jsx";
 import Section from "./components/Section.jsx";
 
 import {login} from "./constants/index.js";
@@ -18,12 +17,12 @@ function Login() {
         e.preventDefault();
         try {
             const res = await axios.post('http://localhost:3001/login', {email, password});
-            navigate(`/my-page/${res.data.userId}`);
+            localStorage.setItem('token', res.data.token);
+            navigate('/');
         } catch (err) {
             console.error(err);
         }
     };
-    /*hello world*/
 
     return (
         <Section id="login" className="flex flex-col min-h-screen pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
