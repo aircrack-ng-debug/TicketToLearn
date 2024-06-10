@@ -13,7 +13,11 @@ const studentSchema = new mongoose.Schema({
         filename: String,
         originalname: String,
         uploadedBy: String
-    }]
+    }],
+    notes: {
+        type: String,
+        default: ''
+    }
 });
 
 const Student = mongoose.model('Student', studentSchema);

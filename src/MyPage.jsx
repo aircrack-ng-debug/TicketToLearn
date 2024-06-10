@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import Section from "./components/Section.jsx";
+import axios from "axios";
 
 function MyPage() {
-    const [myPageData, setMyPageData] = useState({ name: '', email: '', course: '', isAdmin: false, files: [] });
+    const [myPageData, setMyPageData] = useState({ name: '', email: '', course: '', isAdmin: false, files: [], notes: '' });
     const [file, setFile] = useState(null);
     const [uploadStatus, setUploadStatus] = useState('');
+    const [notes, setNotes] = useState('');
+    const [latexImage, setLatexImage] = useState('');
 
     useEffect(() => {
         const fetchMyPageData = async () => {
@@ -19,6 +21,7 @@ function MyPage() {
                     }
                 });
                 setMyPageData(response.data);
+                setNotes(response.data.notes);
             } catch (error) {
                 console.error('Error fetching my page data', error);
             }
@@ -52,6 +55,51 @@ function MyPage() {
         }
     };
 
+    const handleNotesChange = (e) => {
+        setNotes(e.target.value);
+    };
+
+    const saveNotes = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.post('http://localhost:3001/save-notes', { notes }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+        } catch (error) {
+            console.error('Error saving notes', error);
+        }
+    };
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            saveNotes();
+        }, 1000); // Save notes automatically every second
+
+        return () => clearTimeout(timeoutId);
+    }, [notes]);
+
+    const convertToLatex = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            console.log('Sending request to convert-latex:', { text: notes });
+            const response = await axios.post('http://localhost:3001/convert-latex', { text: notes }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            console.log('Received response from convert-latex:', response.data);
+            setLatexImage(response.data.imageUrl);
+        } catch (error) {
+            console.error('Error converting text to LaTeX', error);
+            if (error.response) {
+                console.log('Response data:', error.response.data);
+            }
+        }
+    };
+
+
     return (
         <Section id="my-page" className="flex flex-col min-h-screen pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
             <Header />
@@ -65,18 +113,17 @@ function MyPage() {
                         <p className="mb-4"><strong>Admin Status:</strong> {myPageData.isAdmin ? 'Admin' : 'User'}</p>
                     </div>
 
-
                     <form onSubmit={handleFileUpload} className="mb-6">
                         <div className="flex items-center justify-center mb-4">
                             <input
                                 type="file"
                                 onChange={handleFileChange}
-                                className="border border-gray-300 p-2 rounded-md "
+                                className="border border-gray-300 p-2 rounded-md"
                             />
                         </div>
                         <button
                             type="submit"
-                            className="flex flex-col items-center justify-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
                         >
                             Upload File
                         </button>
@@ -84,7 +131,7 @@ function MyPage() {
                     {uploadStatus && <p className="text-red-500">{uploadStatus}</p>}
 
                     <h2 className="text-xl font-semibold mb-4">Files</h2>
-                    <ul className="list-disc list-inside">
+                    <ul className="list-disc list-inside mb-6">
                         {myPageData.files.map((file, index) => (
                             <li key={index}>
                                 <a
@@ -98,6 +145,25 @@ function MyPage() {
                             </li>
                         ))}
                     </ul>
+
+                    <h2 className="text-xl font-semibold mb-4">Notes</h2>
+                    <textarea
+                        value={notes}
+                        onChange={handleNotesChange}
+                        className="w-full h-64 p-2 border border-gray-300 rounded-md mb-4 shadow-white-md"
+                        placeholder="Write your notes here..."
+                    ></textarea>
+                    <button
+                        onClick={convertToLatex}
+                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                    >
+                        Convert to LaTeX
+                    </button>
+                    {latexImage && (
+                        <div className="mt-4">
+                            <img src={latexImage} alt="LaTeX Output" className="border border-gray-300 rounded-md" />
+                        </div>
+                    )}
                 </div>
             </div>
             <Footer />

@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const StudentModel = require('./Models/Students.js');
+const axios = require('axios'); // Add this line
 
 // Load environment variables
 require('dotenv').config();
@@ -180,3 +181,55 @@ app.post('/admin-upload', authenticateJWT, upload.single('file'), async (req, re
         res.status(500).json({ error: error.message });
     }
 });
+
+// Endpoint to save notes
+app.post('/save-notes', authenticateJWT, async (req, res) => {
+    try {
+        const user = await StudentModel.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const { notes } = req.body;
+        user.notes = notes;
+        await user.save();
+
+        res.status(200).json({ message: 'Notes saved successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Endpoint to convert text to LaTeX using QuickLaTeX API
+app.post('/convert-latex', authenticateJWT, async (req, res) => {
+    try {
+        const { text } = req.body;
+        console.log('Converting text to LaTeX:', text); // Log the input text
+
+        const response = await axios.post('https://www.quicklatex.com/latex3.f', null, {
+            params: {
+                formula: text,  // Direct LaTeX string
+                fsize: 12,
+                fcolor: '000000',
+                mode: 0,
+                out: 1,
+                preamble: ''
+            }
+        });
+
+        console.log('QuickLaTeX API response:', response.data); // Log the response
+
+        // Check if the response indicates an error
+        if (response.data.includes('error.png')) {
+            console.error('QuickLaTeX API returned an error:', response.data);
+            res.status(500).json({ error: 'Error converting text to LaTeX', details: response.data });
+        } else {
+            res.status(200).json({ imageUrl: response.data });
+        }
+    } catch (error) {
+        console.error('Error converting text to LaTeX:', error.response ? error.response.data : error.message);
+        res.status(500).json({ error: 'Error converting text to LaTeX', details: error.response ? error.response.data : error.message });
+    }
+});
+
+
