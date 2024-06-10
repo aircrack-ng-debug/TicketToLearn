@@ -10,6 +10,7 @@ function MyPage() {
     const [uploadStatus, setUploadStatus] = useState('');
     const [notes, setNotes] = useState('');
     const [latexImage, setLatexImage] = useState('');
+    const [time, setTime] = useState('');
 
     useEffect(() => {
         const fetchMyPageData = async () => {
@@ -28,6 +29,21 @@ function MyPage() {
         };
 
         fetchMyPageData();
+
+        const fetchTime = async () => {
+            try {
+                const response = await fetch('http://worldtimeapi.org/api/timezone/Etc/UTC');
+                const data = await response.json();
+                setTime(new Date(data.datetime).toLocaleTimeString());
+            } catch (error) {
+                console.error('Error fetching time:', error);
+            }
+        };
+
+        fetchTime();
+        const interval = setInterval(fetchTime, 1000);
+
+        return () => clearInterval(interval);
     }, []);
 
     const handleFileChange = (e) => {
@@ -107,6 +123,7 @@ function MyPage() {
                 <div className="shadow-md rounded-lg p-6">
                     <div className="flex flex-col items-center justify-center">
                         <h1 className="text-2xl font-bold mb-4">My Page</h1>
+                        <p>current time {time}</p>
                         <p className="mb-2"><strong>Name:</strong> {myPageData.name}</p>
                         <p className="mb-2"><strong>Email:</strong> {myPageData.email}</p>
                         <p className="mb-2"><strong>Course:</strong> {myPageData.course}</p>
