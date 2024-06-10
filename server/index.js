@@ -2,16 +2,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
 const StudentModel = require('./Models/Students.js');
 
-// Define jwt for my page
-// lade Umgebungsvariablen
+// Load environment variables
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.SECRET_KEY;
 
-
-const app = express(); // Define app before using it
+const app = express();
 app.use(express.json());
 app.use(cors());
 
@@ -29,6 +29,9 @@ const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+// Multer setup for file uploads
+const upload = multer({ dest: 'uploads/' });
 
 // Register endpoint
 app.post('/register', async (req, res) => {
@@ -69,17 +72,19 @@ app.post('/login', async (req, res) => {
 
 // Middleware to verify JWT
 const authenticateJWT = (req, res, next) => {
-    const token = req.headers.authorization;
-    if (token) {
-        jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+        const token = authHeader.split(' ')[1];
+
+        jwt.verify(token, SECRET_KEY, (err, user) => {
             if (err) {
-                return res.status(403).json({ message: 'Forbidden' });
+                return res.sendStatus(403);
             }
-            req.user = decoded;
+            req.user = user;
             next();
         });
     } else {
-        res.status(401).json({ message: 'Unauthorized' });
+        res.sendStatus(401);
     }
 };
 
@@ -96,4 +101,20 @@ app.get('/my-page', authenticateJWT, async (req, res) => {
     }
 });
 
+// File upload endpoint
+app.post('/file-upload', authenticateJWT, upload.single('file'), async (req, res) => {
+    try {
+        const user = await StudentModel.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
+        // Save file info to user (implement logic as needed)
+        // Example: user.files.push({ filename: req.file.filename, originalname: req.file.originalname });
+        // await user.save();
+
+        res.status(200).json({ message: 'File uploaded successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
