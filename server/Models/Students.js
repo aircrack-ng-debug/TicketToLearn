@@ -1,11 +1,21 @@
 const mongoose = require('mongoose');
 
-const StudentSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    course: { type: String, required: true } // Einfacher String für Kursname
+const studentSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    password: String,
+    course: String,
+    isAdmin: {
+        type: Boolean,
+        default: false
+    },
+    files: [{
+        filename: String,
+        originalname: String,
+        uploadedBy: String
+    }]
 });
 
-const Student = mongoose.model('Student', StudentSchema);
+const Student = mongoose.model('Student', studentSchema);
+
 module.exports = Student;

@@ -4,7 +4,6 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
-const path = require('path');
 const StudentModel = require('./Models/Students.js');
 
 // Load environment variables
@@ -88,18 +87,25 @@ const authenticateJWT = (req, res, next) => {
     }
 };
 
-// MyPage endpoint
+//
 app.get('/my-page', authenticateJWT, async (req, res) => {
     try {
         const user = await StudentModel.findById(req.user.userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.status(200).json({ name: user.name, email: user.email, course: user.course });
+        res.status(200).json({
+            name: user.name,
+            email: user.email,
+            course: user.course,
+            isAdmin: user.isAdmin,
+            files: user.files
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // File upload endpoint
 app.post('/file-upload', authenticateJWT, upload.single('file'), async (req, res) => {
@@ -112,6 +118,62 @@ app.post('/file-upload', authenticateJWT, upload.single('file'), async (req, res
         // Save file info to user (implement logic as needed)
         // Example: user.files.push({ filename: req.file.filename, originalname: req.file.originalname });
         // await user.save();
+
+        res.status(200).json({ message: 'File uploaded successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Admin file upload endpoint
+app.post('/admin-upload', authenticateJWT, upload.single('file'), async (req, res) => {
+    try {
+        const user = await StudentModel.findById(req.user.userId);
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        // Find all students in the same course
+        const students = await StudentModel.find({ course: user.course });
+        const fileInfo = {
+            filename: req.file.filename,
+            originalname: req.file.originalname,
+            uploadedBy: user.name
+        };
+
+        // Update each student's files array
+        for (let student of students) {
+            student.files.push(fileInfo);
+            await student.save();
+        }
+
+        res.status(200).json({ message: 'File uploaded successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Admin file upload endpoint
+app.post('/admin-upload', authenticateJWT, upload.single('file'), async (req, res) => {
+    try {
+        const user = await StudentModel.findById(req.user.userId);
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        // Find all students in the same course
+        const students = await StudentModel.find({ course: user.course });
+        const fileInfo = {
+            filename: req.file.filename,
+            originalname: req.file.originalname,
+            uploadedBy: user.name
+        };
+
+        // Update each student's files array
+        for (let student of students) {
+            student.files.push(fileInfo);
+            await student.save();
+        }
 
         res.status(200).json({ message: 'File uploaded successfully' });
     } catch (error) {
