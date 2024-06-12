@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import Header from "./components/Header.jsx";
@@ -13,6 +13,7 @@ function Login() {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -26,7 +27,7 @@ function Login() {
 
     return (
         <Section id="login" className="flex flex-col min-h-screen pt-[4.75rem] lg:pt-[5.25rem] overflow-hidden">
-                <Header/>
+            <Header/>
             <div className="flex flex-col flex-grow pt-[4.75rem] login-container">
 
                 <h1 className="flex h1 mb-10 items-center justify-center">
@@ -42,6 +43,7 @@ function Login() {
                         />
                     </span>
                 </h1>
+
                 <div className="flex items-center justify-center min-h-[34rem] flex-wrap gap-10 mb-10">
                     {login.map((item) => (
                         <div
@@ -85,6 +87,7 @@ function Login() {
                         </div>
                     ))}
                 </div>
+
                 <Footer/>
             </div>
         </Section>

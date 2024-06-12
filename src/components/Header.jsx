@@ -43,7 +43,7 @@ const Header = () => {
                         openNavigation ? "flex" : "hidden"
                     } fixed top-[5rem] left-0 right-0 bottom-0 bg-n-8 lg:static lg:flex lg:mx-auto lg:bg-transparent`}
                 >
-                    <h5>Projekt Members: Maurice, Marius, Alexander, Paul</h5>
+                    <h5>Project Members: Maurice, Marius, Alexander, Paul</h5>
                 </nav>
 
                 {isAuthenticated ? (
