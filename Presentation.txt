@@ -1,0 +1,118 @@
+Presentation Overview:
+
+Inspiration Projektidee
+-nur sagen nichts zeigen.
+
+Featurevorstellung:
+    registration und Login:
+        live: walktrough user registration with creating a new user and loggin in to my-page
+        But how are the users Stored?
+            showing the databank scheme and the picture of how the Users will be stored in our Databank
+            showing the registration endpoint
+                getting into cryptographie why used bcrypt not sha256
+
+            showing the login endpoint
+                transition into jsown web Tokens with code line
+
+        JSON WEb Token.
+        How can we verify if a user is logged in?
+            showing backend login endpoint
+                discuss how the user request is processed and how the jwebtoken is generated and stored in the localstorage
+                discuss that there is no state session, jwt is sent with authHeader on every request
+
+                transition with authrequest to access my-page
+
+        protectedRoute:
+            showing the my-page endpoint in the index.js of the backend. and the jwt middleware
+
+
+
+    frontend:
+
+        how does the ScrollParallax Effect works?
+
+        We have a exported function namend BackgroundCircles. In this function we use MouseParallax, a react-component which is likely to track
+        the mouse movement and apply transformations to its child elements.
+        child elements are those which are in the Wrapper of the Mouseparallax:
+
+        <MouseParallax strength={0.07} parallaxContainerRef={parallaxRef}>
+                        <div className="absolute bottom-1/2 left-1/2 w-0.25 h-1/2 origin-bottom rotate-[46deg]">
+                            <div
+                                className={`w-2 h-2 -ml-1 -mt-36 bg-gradient-to-b from-[#DD734F] to-[#1A1A32] rounded-full transition-transform duration-500 ease-out ${
+                                    mounted ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                                }`}
+                            />
+                        </div>
+
+        MouseParallax attaches a event listener for mouse movements.
+        it then updates the new positions for its children based on the mouse coordinates.
+
+        as you can see we give MouseParralax something called parallaxContainerRef
+
+        thats because:
+
+        these elements are stored in the dom tree
+
+        The DOM (Document Object Model) represents a structure of the entire WebAppllication as a tree of Objects
+        used to manage the UI.
+
+        Each node in the tree then represents a part of the document, like an element, image, attribute or text.
+
+        mouseParralax doesnt know where to find these objects in the DOM tree.
+
+        therefore we give it a reference which points towards the elements to manipulate in the DOM tree.
+
+        Mouseparrallax now can apply those transformations we triggered with our cursor to its child elements in the DOM
+
+        Its important to mention, that Mouseparallax knows which elements are its child elements and how to manipulate them, but it doesnt know where they´re
+        located in the DOM Tree. Therefore it needs the Reference which we set as parameter.
+
+        If we now look in the component which actually uses this parallax (hero.jsx) we there have to declare the reference.
+
+        const parallaxRef = useRef(null);
+
+        useRef is a react-component which allows you to create a reference to an element in the dom tree. Updating a useRef object does not cause
+        the component to re-render.
+        this works because the reference holds "sich veränderne" value those can be changed without triggering a re rendering.
+
+        this parallaxRef is initialised to null, we then tell it on which element it points on the dom.
+
+        <div className="container relative" ref={parallaxRef}>
+
+        as you may noticed there are several more elements inside this wrapper, scince MouseParallax can only affect its own scope, there wont be made
+        any changes to other elements inside this wrapper.
+
+        transition into
+        State Management
+
+            short outtake to useState.
+
+            useState is also a react-component used for hooks. But its quit differently.
+
+            When the state of a Component listend by the useState changes, React re-renders this component.
+
+            Therefore it creates a new virutal DOM with the new State.
+
+            then it compares the new virutal DOM with the previous one, to identify what has changed. this is also known as diffing
+
+            Based on the diffing results, React calculates the minimal set of changes (patches) needed to update the actual DOM.
+            React applies these changes to the real DOM to keep it in sync with the virtual DOM.
+
+            we have used useState in case of logging in:
+
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+
+            where the email and password actually become a change.
+
+                we have done a bug hunting to check if we actually validate the token to access the my-page --> backend validates the token if we try to upload,
+                but the actual access to the page isnt safe.
+
+                live: showing the frontend issue where we can access the my-page by adding a token to the localstorage
+                --> this is a bugfix for the future.
+
+
+
+
+
+        reusing of the components

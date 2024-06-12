@@ -154,33 +154,6 @@ app.post('/admin-upload', authenticateJWT, upload.single('file'), async (req, re
     }
 });
 
-// Admin file upload endpoint
-app.post('/admin-upload', authenticateJWT, upload.single('file'), async (req, res) => {
-    try {
-        const user = await StudentModel.findById(req.user.userId);
-        if (!user || !user.isAdmin) {
-            return res.status(403).json({ message: 'Forbidden' });
-        }
-
-        // Find all students in the same course
-        const students = await StudentModel.find({ course: user.course });
-        const fileInfo = {
-            filename: req.file.filename,
-            originalname: req.file.originalname,
-            uploadedBy: user.name
-        };
-
-        // Update each student's files array
-        for (let student of students) {
-            student.files.push(fileInfo);
-            await student.save();
-        }
-
-        res.status(200).json({ message: 'File uploaded successfully' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
 
 // Endpoint to save notes
 app.post('/save-notes', authenticateJWT, async (req, res) => {

@@ -10,7 +10,7 @@ import curve1 from "./curve-1.svg";
 import curve2 from "./curve-2.svg";
 
 import lines from "./lines.svg";
-import stars from "./stars.svg";
+//import stars from "./stars.svg";
 
 import notification1 from "./image-1.png";
 import notification2 from "./image-2.png";
@@ -53,7 +53,7 @@ export{
   curve1,
   curve2,
   lines,
-  stars,
+  //stars,
   notification1,
   notification2,
   notification3,

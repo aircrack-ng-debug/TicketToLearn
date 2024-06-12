@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from "./components/Header.jsx";
 import Footer from "./components/Footer.jsx";
 import Section from "./components/Section.jsx";
-import { curve } from "./assets/index.js";
+import {curve} from "./assets/index.js";
 import {register} from "./constants/index.js";
+
 
 function Signup() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [selectedCourse, setSelectedCourse] = useState('');
-
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -30,20 +30,22 @@ function Signup() {
             <Header/>
             <div className="flex flex-col flex-grow pt-[4.75rem] login-container">
 
+
                 <h1 className="flex h1 mb-10 items-center justify-center">
                     {` `}
                     <span className="inline-block relative">
                         Register{" "}
-                        <img
+                        {<img
                             src={curve}
                             className="absolute top-full left-0 w-full xl:-mt-2"
                             width={624}
                             height={28}
                             alt="Curve"
-                        />
+                        />}
+
                     </span>
                 </h1>
-                <div className="flex items-center justify-center min-h-[34rem] flex-wrap gap-10 mb-10">
+                <div className="flex items-center justify-center min-h-[34rem] flex-wrap gap-10 mb-10" >
                     {register.map((item) => (
                         <div
                             className="block relative p-0.5 bg-no-repeat bg-[length:100%_100%] md:max-w-[24rem]"

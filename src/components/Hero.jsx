@@ -37,7 +37,7 @@ const Hero = () => {
                         Upgrade your productivity
                         with Ticket2Learn, the platform to master DHBW.
                     </p>
-                    <Button href="/pricing" white>
+                    <Button href="/my-page" white>
                         Get started
                     </Button>
                 </div>

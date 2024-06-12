@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MouseParallax } from "react-just-parallax";
 
 import PlusSvg from "../../assets/svg/PlusSvg";
+import {curve} from "../../assets/index.js";
 
 export const Gradient = () => {
     return (
@@ -33,6 +34,20 @@ const Rings = () => {
             <div className="absolute top-1/2 left-1/2 w-[23.125rem] aspect-square border border-n-2/10 rounded-full -translate-x-1/2 -translate-y-1/2" />
         </>
     );
+};
+
+export const MoveableCurve = ({ parallexRef }) => {
+
+    return(
+
+        <MouseParallax strength = "0.07" parallaxContainerRef={parallexRef}>
+
+            <img src={curve} alt="Curve" />
+
+        </MouseParallax>
+
+    );
+
 };
 
 export const BackgroundCircles = ({ parallaxRef }) => {
